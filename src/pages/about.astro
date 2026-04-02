@@ -1,0 +1,109 @@
+---
+import '../styles/global.css'
+import Layout from "../layouts/Layout.astro"
+
+import Header from '../components/Header.astro'
+import Hero from '../components/Hero.astro'
+import Tools from '../components/Tools.astro'
+import Footer from '../components/Footer.astro'
+import Bars from '../components/Bars.astro'
+
+---
+
+
+<Layout>
+
+    <Header />
+
+    <a href="/guestbook/" class="absolute right-0 top-0 m-4 px-3 py-1 bg-yellow-300 border-2 border-black rounded z-20">Guestbook</a>
+    
+    <div id="sticker-book" class="absolute right-0 top-0 w-64 h-[2000px] pointer-events-none"></div>
+
+    <section class="max-w-3xl mx-auto py-16 px-6">
+      <h1 class="text-4xl font-medium mb-6">About Me</h1>
+      <p class="text-lg leading-relaxed">
+        I am a PhD researcher in Human-Computer Interaction at Linköping University. 
+        I am originally from 
+        <span class="underline cursor-pointer" onclick="addSticker('/stickers/uk-tri.png')">Ukraine</span>,
+        and my work explores feminist approaches to games, data visualization, and collaborative systems.
+      </p>
+    </section>
+    
+    <Tools />
+
+    <Footer />
+ 
+<script is:inline>
+  window.addSticker = function (image) {
+    const container = document.getElementById('sticker-book');
+    if (!container) return;
+
+    // prevent duplicates
+    if (document.querySelector(`[data-sticker="${image}"]`)) return;
+
+    const sticker = document.createElement('img');
+    sticker.src = image;
+    sticker.setAttribute('data-sticker', image);
+    sticker.className = 'absolute w-20 cursor-grab pointer-events-auto';
+    sticker.style.willChange = 'transform';
+
+    const startX = Math.floor(Math.random() * 120 + 10);
+    const startY = Math.floor(Math.random() * 300 + 50);
+
+    sticker.style.transform = `translate(${startX}px, ${startY}px) scale(0)`;
+    sticker.style.transition = "transform 0.2s ease";
+
+    requestAnimationFrame(() => {
+      sticker.style.transform = `translate(${startX}px, ${startY}px) scale(1)`;
+    });
+
+    // make draggable (smooth + stable)
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    let currentX = startX;
+    let currentY = startY;
+    let rafId = null;
+
+    sticker.addEventListener('mousedown', (e) => {
+      const rect = sticker.getBoundingClientRect();
+      isDragging = true;
+
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      sticker.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const containerRect = container.getBoundingClientRect();
+
+      const x = e.clientX - containerRect.left - offsetX;
+      const y = e.clientY - containerRect.top - offsetY;
+
+      currentX = x;
+      currentY = y;
+
+      // disable transition while dragging (prevents lag)
+      sticker.style.transition = 'none';
+
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        sticker.style.transform = `translate(${currentX}px, ${currentY}px) scale(1)`;
+      });
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      sticker.style.cursor = 'grab';
+      // restore smooth transitions after drag
+      sticker.style.transition = "transform 0.2s ease";
+    });
+
+    container.appendChild(sticker);
+  }
+</script>
+</Layout>
