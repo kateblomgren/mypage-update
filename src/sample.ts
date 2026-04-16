@@ -4,6 +4,7 @@ const author = {
   tiktok: ``,
   ig: ``,
   x: ``,
+  github: `https://github.com/kateblomgren`,
   email: "mailto:kate.blomgren@liu.se",
 };
 

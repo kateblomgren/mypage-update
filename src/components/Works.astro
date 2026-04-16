@@ -1,52 +1,40 @@
 ---
-import Bars from "./Bars.astro"
-import { buy } from "../sample"
-
 import svgUnderline from '../assets/underline.svg'
 import arrowCard from '../assets/arrow-card.svg'
+import Bars from "./Bars.astro"
 
-const portfolio = [
-  { 
-    name: 'Portfolio design', desc: `UI design - User research - webflow development`,
-    cover: `https://images.pexels.com/photos/1051075/pexels-photo-1051075.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2`
-  },
-  { 
-    name: 'Portfolio design', desc: `UI design - User research - webflow development`,
-    cover: `https://images.pexels.com/photos/2303781/pexels-photo-2303781.jpeg?auto=compress&cs=tinysrgb&w=1600`
-  },
-  { 
-    name: 'Portfolio design', desc: `UI design - User research - webflow development`,
-    cover: `https://images.pexels.com/photos/441963/pexels-photo-441963.jpeg?auto=compress&cs=tinysrgb&w=1600`
-  },
-  { 
-    name: 'Portfolio design', desc: `UI design - User research - webflow development`,
-    cover: `https://images.pexels.com/photos/245240/pexels-photo-245240.jpeg?auto=compress&cs=tinysrgb&w=1600`
-  },
-]
+const allPosts = (Object.values(import.meta.glob('../pages/posts/*.md', { eager: true })) as any[])
+  .filter((p: any) => !p.file?.split('/').pop()?.startsWith('_'))
+  .sort((a: any, b: any) => new Date(b.frontmatter?.pubDate ?? 0).getTime() - new Date(a.frontmatter?.pubDate ?? 0).getTime());
 ---
 
-
-<section class="py-25 space-y-10 px-5" id="work">
-    <div class="max-w-md mx-auto relative ">
-      <h1 class="text-4xl font-medium text-center">My Portfolio</h1>
-      <img src={svgUnderline.src} alt="arrow" width="140" class="absolute left-50 -bottom-1" />
+<section class="py-12 space-y-10 px-5" id="work">
+    <div class="max-w-md mx-auto relative">
+      <h1 class="text-4xl font-medium text-center">News</h1>
+      <img src={svgUnderline.src} alt="underline" width="140" class="absolute left-1/2 -translate-x-1/2 -bottom-1" />
     </div>
-  
-    <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10"> 
-      {portfolio.map(item => ( 
-        <a href={buy.link} target="_blank" class="flex flex-col bg-white p-5 group relative transition-all duration-200 hover:shadow-[4px_4px_0px_rgba(0,0,0,0.3)]">
+
+    <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+      {allPosts.map((post: any) => (
+        <a href={post.url} class="flex flex-col bg-white p-5 group relative top-0 transition-all duration-200 hover:-top-2 hover:scale-105 hover:shadow-[6px_12px_0px_rgba(0,0,0,0.3)]">
           <div class="w-full h-[200px] overflow-hidden border-2">
-           <img src={item.cover} alt="" class="w-full h-full object-cover" />
+            <img src={post.frontmatter?.image?.url || '/placeholder.png'} alt={post.frontmatter?.image?.alt || ''} class="w-full h-full object-cover" />
           </div>
           <div class="space-y-1 pt-4">
             <div class="flex pr-2">
-              <h2 class="text-xl font-medium flex-1">{item.name}</h2>
+              <h2 class="text-xl font-medium flex-1 line-clamp-2">{post.frontmatter.title}</h2>
               <img src={arrowCard.src} alt="arrow" width="25" />
             </div>
-            <p class="mr-20">{item.desc}</p>
+            <p class="text-sm text-gray-500">{post.frontmatter.pubDate}</p>
           </div>
           <Bars />
         </a>
       ))}
+    </div>
+
+    <div class="text-center">
+      <a href="/news/" class="inline-block px-6 py-2 border-2 border-black font-medium transition-all duration-200 hover:shadow-[3px_3px_0px_rgba(0,0,0,0.3)]">
+        All News →
+      </a>
     </div>
 </section>
